@@ -7,10 +7,10 @@ import { OembedSpecList } from './interfaces';
 
 @Injectable()
 export class OembedService {
-  oembedSpecList: Promise<OembedSpecList[]>;
+  oembedSpecList: OembedSpecList[];
   constructor(private httpService: HttpService) {}
 
-  async getOembedSpec(): Promise<OembedSpecList[]> {
+  async getOembedSpecList(): Promise<OembedSpecList[]> {
     const oembedSpecUrl = 'https://oembed.com/providers.json';
     const observer = this.httpService
       .get(oembedSpecUrl)
@@ -20,5 +20,12 @@ export class OembedService {
         OEMBED_ERROR_MSG.FAIL_TO_FETCH_OEMBED_SPEC,
       );
     });
+  }
+
+  async setOembedSpecList(): Promise<void> {
+    if (this.oembedSpecList) {
+      return;
+    }
+    this.oembedSpecList = await this.getOembedSpecList();
   }
 }
