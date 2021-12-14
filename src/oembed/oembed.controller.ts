@@ -1,4 +1,13 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { UrlDto } from './dto/url.dto';
+import { OembedService } from './oembed.service';
 
 @Controller('oembed')
-export class OembedController {}
+export class OembedController {
+  constructor(private oembedService: OembedService) {}
+
+  @Post()
+  getOembedData(@Body() urlDto: UrlDto): any {
+    return { urlDto };
+  }
+}
