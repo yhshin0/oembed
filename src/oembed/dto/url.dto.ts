@@ -1,10 +1,8 @@
 import { IsString, IsUrl } from 'class-validator';
+import { OEMBED_ERROR_MSG } from '../constants';
 
 export class UrlDto {
-  @IsString({ message: 'url을 반드시 입력해야 합니다' })
-  @IsUrl(
-    { require_protocol: true },
-    { message: '올바른 url 형태가 아닙니다(ex: http://youtube.com)' },
-  )
+  @IsString({ message: OEMBED_ERROR_MSG.EMPTY_URL })
+  @IsUrl({ require_protocol: true }, { message: OEMBED_ERROR_MSG.INVALID_URL })
   url: string;
 }
