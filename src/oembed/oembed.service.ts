@@ -3,6 +3,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
 
 import { OEMBED_ERROR_MSG } from './constants';
+import { UrlDto } from './dto/url.dto';
 import { OembedSpecList } from './interfaces';
 
 @Injectable()
@@ -27,5 +28,13 @@ export class OembedService {
       return;
     }
     this.oembedSpecList = await this.getOembedSpecList();
+  }
+
+  async getOembedData(urlDto: UrlDto): Promise<string> {
+    await this.setOembedSpecList();
+
+    const urlStartIndex = urlDto.url.indexOf('//') + 2;
+    const url = urlDto.url.substring(urlStartIndex);
+    return url;
   }
 }

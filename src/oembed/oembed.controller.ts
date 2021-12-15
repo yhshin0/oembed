@@ -7,7 +7,7 @@ export class OembedController {
   constructor(private oembedService: OembedService) {}
 
   @Post()
-  getOembedData(@Body() urlDto: UrlDto): any {
-    return { urlDto };
+  async getOembedData(@Body() urlDto: UrlDto): Promise<string> {
+    return await this.oembedService.getOembedData(urlDto);
   }
 }
