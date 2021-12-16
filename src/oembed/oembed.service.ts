@@ -1,5 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
 
 import { OEMBED_ERROR_MSG } from './constants';
@@ -51,8 +55,22 @@ export class OembedService {
   async getOembedData(urlDto: UrlDto): Promise<string> {
     await this.setOembedSpecEndpointUrlAndSchemesList();
 
-    const urlStartIndex = urlDto.url.indexOf('//') + 2;
-    const url = urlDto.url.substring(urlStartIndex);
+    const url = urlDto.url;
+    const matchedOembedSpec = this.getMatchedOembedSpec(url);
+    if (!matchedOembedSpec) {
+      throw new BadRequestException(OEMBED_ERROR_MSG.NOT_MATCH_PROVIDER);
+    }
     return url;
+  }
+
+  getMatchedOembedSpec(url: string): OembedSpecEndpointUrlAndSchemes {
+    for (const oembedSpec of this.oembedSpecEndpointUrlAndSchemesList) {
+      for (const scheme of oembedSpec.schemes) {
+        if (url.search(scheme) !== -1) {
+          return oembedSpec;
+        }
+      }
+    }
+    return null;
   }
 }
