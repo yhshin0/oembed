@@ -40,7 +40,7 @@ export class OembedService {
         const schemesList = [];
 
         endpoint.schemes?.map((scheme) => {
-          const newScheme = scheme.replace(/\./g, '\\.').replace(/\*/g, '\\w');
+          const newScheme = scheme.replace(/\./g, '\\.').replace(/\*/g, '.+');
           schemesList.push(new RegExp(newScheme));
         });
 
