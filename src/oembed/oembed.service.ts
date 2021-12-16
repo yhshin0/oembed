@@ -60,7 +60,16 @@ export class OembedService {
     if (!matchedOembedSpec) {
       throw new BadRequestException(OEMBED_ERROR_MSG.NOT_MATCH_PROVIDER);
     }
-    return url;
+
+    const newUrl = matchedOembedSpec.url + `?url=${url}`;
+    const observer = this.httpService
+      .get(newUrl)
+      .pipe(map((axiosResponse) => axiosResponse.data));
+    return await lastValueFrom(observer).catch(() => {
+      throw new InternalServerErrorException(
+        OEMBED_ERROR_MSG.FAIL_TO_FETCH_OEMBED_DATA,
+      );
+    });
   }
 
   getMatchedOembedSpec(url: string): OembedSpecEndpointUrlAndSchemes {
