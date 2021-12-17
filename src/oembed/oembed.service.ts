@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { lastValueFrom, map } from 'rxjs';
 
 import { OEMBED_ERROR_MSG } from './constants';
@@ -13,7 +14,10 @@ import { OembedSpecEndpointUrlAndSchemes, OembedSpecList } from './interfaces';
 @Injectable()
 export class OembedService {
   oembedSpecEndpointUrlAndSchemesList: OembedSpecEndpointUrlAndSchemes[];
-  constructor(private httpService: HttpService) {}
+  constructor(
+    private httpService: HttpService,
+    private configService: ConfigService,
+  ) {}
 
   async getOembedSpecList(): Promise<OembedSpecList[]> {
     const oembedSpecUrl = 'https://oembed.com/providers.json';
@@ -40,7 +44,7 @@ export class OembedService {
         const schemesList = [];
 
         endpoint.schemes?.map((scheme) => {
-          const newScheme = scheme.replace(/\./g, '\\.').replace(/\*/g, '\\w');
+          const newScheme = scheme.replace(/\./g, '\\.').replace(/\*/g, '.+');
           schemesList.push(new RegExp(newScheme));
         });
 
@@ -52,7 +56,7 @@ export class OembedService {
     }
   }
 
-  async getOembedData(urlDto: UrlDto): Promise<string> {
+  async getOembedData(urlDto: UrlDto): Promise<any> {
     await this.setOembedSpecEndpointUrlAndSchemesList();
 
     const url = urlDto.url;
@@ -60,7 +64,23 @@ export class OembedService {
     if (!matchedOembedSpec) {
       throw new BadRequestException(OEMBED_ERROR_MSG.NOT_MATCH_PROVIDER);
     }
-    return url;
+
+    let newUrl = matchedOembedSpec.url + `?url=${url}`;
+    if (matchedOembedSpec.url.includes('facebook')) {
+      const appId = this.configService.get<string>('FACEBOOK_APP_ID');
+      const clientToken = this.configService.get<string>(
+        'FACEBOOK_CLIENT_TOKEN',
+      );
+      newUrl += `&access_token=${appId}|${clientToken}`;
+    }
+    const observer = this.httpService
+      .get(newUrl)
+      .pipe(map((axiosResponse) => axiosResponse.data));
+    return await lastValueFrom(observer).catch(() => {
+      throw new InternalServerErrorException(
+        OEMBED_ERROR_MSG.FAIL_TO_FETCH_OEMBED_DATA,
+      );
+    });
   }
 
   getMatchedOembedSpec(url: string): OembedSpecEndpointUrlAndSchemes {
