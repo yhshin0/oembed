@@ -1,4 +1,14 @@
+document.getElementById('url').addEventListener('keyup', (evt) => {
+  if (evt.key === 'Enter') {
+    fetchOembedData();
+  }
+});
+
 document.getElementById('submit-btn').addEventListener('click', () => {
+  fetchOembedData();
+});
+
+const fetchOembedData = () => {
   fetch('/oembed', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -27,4 +37,4 @@ document.getElementById('submit-btn').addEventListener('click', () => {
       }
     })
     .catch((error) => console.log(error));
-});
+};
