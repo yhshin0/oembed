@@ -2,14 +2,19 @@
   <head>
     <meta charset='utf-8' />
     <title>oEmbed Test</title>
+    <link rel='stylesheet' href='index.scss' />
   </head>
   <body>
-    <div>
+    <div class='header'>
       <h1 id='title'>oEmbed Test</h1>
-      <input type='text' name='url' id='url' />
-      <input type='button' value='확인' id='submit-btn' />
+      <div class='input-container'>
+        <input type='text' name='url' id='url' />
+        <input type='button' value='확인' id='submit-btn' />
+      </div>
     </div>
-    <div id='result'></div>
+    <div class='result-container'>
+      <div id='result'></div>
+    </div>
   </body>
   <script src='index.js'></script>
 </html>
